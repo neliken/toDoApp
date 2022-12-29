@@ -46,8 +46,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 500px;
-    height: 80%;
+    width: 90%;
+    height: 90%;
     margin: auto;
 }
 
@@ -57,13 +57,14 @@ body {
     justify-content: space-between;
 }
 
-.container .header .switchMode {
+.container .header .switch-mode {
     width: 30px;
     height: 30px;
     background-image: var(--switcher-theme);
     background-repeat: no-repeat;
 }
-.container .header .toDoText {
+
+.container .header .to-do-text {
     color: white;
     font-size: 40px;
     font-weight: 800;
@@ -71,7 +72,7 @@ body {
     padding: 15px 0px;
 }
 
-.container .newToDo {
+.container .new-to-do {
     background-color: var(--background-todo);
     display: flex;
     flex-direction: row;
@@ -81,16 +82,16 @@ body {
     border-radius: 5px;
 }
 
-/*.container .newToDo .inputWrapper {*/
-/*    width: 100%;*/
-/*}*/
-
-.container .newToDo input {
+.container .new-to-do input {
     all: unset;
     cursor: pointer;
 }
-.container .newToDo input::placeholder {
+
+.container .new-to-do input::placeholder {
     color: var(--dark-grayish-blue-dark-theme);
+    position: absolute;
+    top: 50%;
+    transform: translate(0%, -50%);
 }
 
 .container .checkbox {
@@ -100,7 +101,7 @@ body {
     border-radius: 50%;
 }
 
-.container .toDoList {
+.container .to-do-list {
     height: 500px;
     background-color: var(--background-todo);
     border-radius: 5px;
@@ -109,56 +110,48 @@ body {
     color: var(--color-text)
 }
 
-.container .toDoList .toDoSection {
+.container .to-do-list .to-do-section {
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: 20px;
     gap: 25px;
     border-bottom: 1px solid var(--border-color);
-    /*cursor: pointer;*/
 }
 
-.container .toDoList .toDoSection .todo {
-    width: 90%;
+.container .to-do-list .to-do-section .todo {
+    width: calc(100% - 57px);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.container .toDoList .toDoSection .todo span {
+.container .to-do-list .to-do-section .todo span {
     height: 30px;
     width: 30px ;
     background-image: url("./images/icon-cross.svg");
     background-repeat: no-repeat;
     background-position: center;
-    visibility: hidden;
-}
-
-.container .toDoList .toDoSection:hover .deleteIcon {
     visibility: visible;
 }
 
-.container .toDoList .checkbox:hover {
+.container .to-do-list .checkbox:hover {
     cursor: pointer;
-    /*background-image: url("./images/icon-check.svg"), linear-gradient(hsl(192, 100%, 67%), hsl(280, 87%, 65%));*/
-    /*border-color: linear-gradient(hsl(192, 100%, 67%), hsl(280, 87%, 65%));*/
 }
 
-.container .toDoList .completed .checkbox {
+.container .to-do-list .completed .checkbox {
     background-image: url("./images/icon-check.svg"), linear-gradient(hsl(192, 100%, 67%), hsl(280, 87%, 65%));
     background-repeat: no-repeat;
     background-position: center;
-    /*border: none;*/
 }
 
-.container .toDoList .completed .todo {
+.container .to-do-list .completed .todo {
     color: var(--dark-grayish-blue-dark-theme);
     text-decoration: line-through;
 }
 
-.container .listInfo {
+.container .list-info {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -168,46 +161,74 @@ body {
     align-items: flex-end;
     padding: 20px;
     height: 20px;
-    /*border-top: 1px solid var(--border-color);*/
 }
 
-.container .listInfo .categories {
+.container .list-info .categories-desktop {
+    display: none;
+}
+
+.container .categories-mobile {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    gap: 7px;
+    justify-content: center;
+    background-color: var(--background-todo);
+    font-size: 15px;
+    color: var(--footerInfo);
+    border-radius: 5px;
+    align-items: center;
+    padding: 20px;
+    gap: 10px;
 }
 
-.container .listInfo .categories div:hover {
-    cursor: pointer;
-    color: var(--hover-color) !important;
-    font-weight: 700;
-}
-
-.container .listInfo .clear:hover {
+.container .list-info .clear:hover {
     cursor: pointer;
     color: var(--hover-color);
     font-weight: 700;
 }
 
-.container .footerInfo {
+.container .footer-info {
     align-self: center;
     font-size: 15px;
     color: var(--footerInfo);
     margin-top: 20px;
 }
 
-@media screen and (min-width: 786px) {
+@media screen and (min-width: 600px) {
     body {
         background-image: var(--bg-image-desktop);
     }
+
     .container {
         width: 600px;
         height: 80%;
         margin: auto;
     }
-}
 
-@media (prefers-color-scheme: dark) {
+    .container .to-do-list .to-do-section .todo span {
+        visibility: hidden;
+    }
 
+    .container .to-do-list .to-do-section:hover .delete-icon {
+        visibility: visible;
+    }
+
+    .container .to-do-list .list-info .categories-desktop {
+        display: flex;
+    }
+
+    .container .categories-mobile {
+        display: none;
+    }
+
+    .container .list-info .categories-desktop {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 7px;
+    }
+
+    .container .list-info .categories-desktop div:hover {
+        cursor: pointer;
+        color: var(--hover-color) !important;
+        font-weight: 700;
+    }
 }

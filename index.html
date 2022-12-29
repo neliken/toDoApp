@@ -10,27 +10,32 @@
 <body data-theme="dark">
   <div class="container">
     <div class="header">
-      <div class="toDoText">TODO</div>
-      <div class="switchMode" id="switchMode"></div>
+      <div class="to-do-text">TODO</div>
+      <div class="switch-mode" id="switch-mode"></div>
     </div>
-    <div class="newToDo">
+    <div class="new-to-do">
       <div class="checkbox"></div>
-      <form action="">
+      <form>
         <input type="text" id="input" placeholder="Create a new todo...">
       </form>
     </div>
-    <div class="toDoList" id="toDoList">
-      <div class="listInfo">
-        <div><span id="nrOfItems">0</span> items left</div>
-        <div class="categories" id="categories">
-          <div id="showAllTrigger">All</div>
-          <div id="showActiveTrigger">Active</div>
-          <div id="showCompletedTrigger">Completed</div>
+    <div class="to-do-list" id="to-do-list">
+      <div class="list-info">
+        <div><span id="nr-of-items">0</span> items left</div>
+        <div class="categories-desktop" id="categories-desktop">
+          <div class="show-all-trigger">All</div>
+          <div class="show-active-trigger">Active</div>
+          <div class="show-completed-trigger">Completed</div>
         </div>
-        <div class="clear" id="deleteAllTrigger">Clear Completed</div>
+        <div class="clear" id="delete-all-trigger">Clear Completed</div>
       </div>
     </div>
-    <div class="footerInfo">Drag and drop to reorder list</div>
+    <div class="categories-mobile" id="categories-mobile">
+      <div class="show-all-trigger">All</div>
+      <div class="show-active-trigger">Active</div>
+      <div class="show-completed-trigger">Completed</div>
+    </div>
+    <div class="footer-info">Drag and drop to reorder list</div>
   </div>
   <script type="module" src="script.js"></script>
 </body>
