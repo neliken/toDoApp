@@ -1,102 +1,173 @@
-let storedTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-if (storedTheme) {
-    document.documentElement.setAttribute('data-theme', storedTheme);
+class HtmlUI {
+    setAttribute(name, value) {
+        document.body.setAttribute(name, value);
+    }
+
+    getAttribute(name) {
+        return document.body.getAttribute(name);
+    }
 }
-class SettingsMode {
+
+class LocalStorage {
+    add(name, value) {
+        localStorage.setItem(name, value);
+    }
+
+    get(name) {
+        localStorage.getItem(name);
+    }
+
+    remove(name) {
+        localStorage.removeItem(name);
+    }
+
+}
+
+class Setting {
+    constants = {
+        DATA_THEME: 'data-theme',
+        THEME: 'theme'
+    }
+
+    themeType = {
+        LIGHT: "light",
+        DARK: "dark"
+    }
+
+    constructor(htmlUI, localStorage) {
+        this.htmlUI = htmlUI;
+        this.localStorage = localStorage;
+    }
+
+    currentTheme() {
+        return this.htmlUI.getAttribute(this.constants.DATA_THEME);
+    }
+
+    switchThemeColor() {
+        const theme = this.currentTheme() === this.themeType.LIGHT
+            ? this.themeType.DARK
+            : this.themeType.LIGHT;
+
+        this.htmlUI.setAttribute(this.constants.DATA_THEME, theme);
+        this.localStorage.add(this.constants.THEME, theme);
+    }
+}
+
+const htmlUi = new HtmlUI();
+const lt = new LocalStorage();
+
+const setting = new Setting(htmlUi, lt);
+
+const switchThemeBtn = document.getElementById("switch-mode");
+
+switchThemeBtn.addEventListener('click', () => setting.switchThemeColor());
+
+class Todo {
     constructor() {
-        this.iconTheme = document.getElementById("switchMode");
+        this.todoList = new Set();
     }
-    toggleMode() {
-        let currentTheme = document.body.getAttribute("data-theme");
-        let targetTheme = "light";
 
-        if (currentTheme === "light") {
-            targetTheme = "dark";
-        }
-        document.body.setAttribute('data-theme', targetTheme);
-        localStorage.setItem('theme', targetTheme);
+    addTodo(todo) {
+        this.todoList.add(todo);
     }
- }
 
-const settingsMode = new SettingsMode();
+    removeTodo(todo) {
+        this.todoList.delete(todo);
+    }
+}
 
-settingsMode.iconTheme.addEventListener('click', settingsMode.toggleMode);
+const todo = new Todo();
 
-class ToDoHandler {
+class TodoItem {
+    constructor(name, isCompleted) {
+        // this.id = id;
+        this.name = name;
+        this.isCompleted = isCompleted;
+    }
+}
+
+const todoItem = new TodoItem();
+
+class TodoUIController {
     constructor() {
-        this.todos = document.getElementsByClassName("toDoSection");
-        this.spanNrOfItems = document.getElementById("nrOfItems");
-        this.categories = document.getElementById("categories").children;
-        this.newTodoInput = document.getElementById("input");
-        this.objectsTodosArray = [];
-        this.showAllTrigger = document.getElementById('showAllTrigger');
-        this.showActiveTrigger = document.getElementById('showActiveTrigger');
-        this.showCompletedTrigger = document.getElementById('showCompletedTrigger');
-        this.deleteAllTrigger = document.getElementById('deleteAllTrigger');
+        this.getElements();
     }
+
+    getElementById(id) {
+        return document.getElementById(id);
+    }
+
+    getElementsByClassName(className) {
+        return document.getElementsByClassName(className);
+    }
+
+    getElements() {
+        this.todos = this.getElementsByClassName("to-do-section");
+        this.nrOfItems = this.getElementById('nr-of-items');
+        this.categories = [...this.getElementById("categories-mobile").children, ...this.getElementById("categories-desktop").children];
+    }
+
     completeHandler(e) {
         e.target.parentElement.classList.toggle("completed");
-        this.changeIsCompleted(e);
-        this.verifyItemsLeft(this.objectsTodosArray);
+        this.toggleCompleted(e);
+        this.checkNrOfItems(todo.todoList);
     }
 
-    changeIsCompleted(e) {
-        this.objectsTodosArray.forEach(todo => {
-            if(e.target.innerText === todo.title){
-                todo.isCompleted = !todo.isCompleted;
+    toggleCompleted(e) {
+        todo.todoList.forEach(todoItem => {
+            if(e.target.innerText === todoItem.name) {
+                todoItem.isCompleted = !todoItem.isCompleted;
             }
         })
     }
 
-    verifyItemsLeft(todoList) {
+    checkNrOfItems(todoList) {
         let count = 0;
 
         todoList.forEach(todo => {
             if(!todo.isCompleted) {
                 count += 1;
             }
-            this.spanNrOfItems.innerHTML = count.toString()
+            this.nrOfItems.innerHTML = count.toString()
         })
     }
 
-    pushTodos(title, completed){
-        this.objectsTodosArray.push({
-            title: title,
-            isCompleted: completed
-        });
-    }
-
-    addNewToDo(e) {
+    addItem(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
             if(e.target.value) {
-                this.createNewTodo(e.target.value, false);
-                this.pushTodos(e.target.value, false);
+                let todoItem = new TodoItem(e.target.value, false);
+                this.createItem(e.target.value, false);
+                todo.addTodo(todoItem);
 
                 e.target.value = "";
-                this.verifyItemsLeft(this.objectsTodosArray);
+                this.checkNrOfItems(todo.todoList);
             }
         }
     }
 
-    createNewTodo(title, completed) {
-        let toDoListContainer = document.getElementById("toDoList");
+    createElement(el) {
+        return document.createElement(el);
+    }
 
-        let newDiv = document.createElement("div");
-        let newCheckBox = document.createElement("div");
-        let newToDoText = document.createElement("div");
-        let newDeleteIcon = document.createElement("span");
+    createItem(name, completed) {
+        let toDoListContainer = this.getElementById("to-do-list");
 
-        newDiv.classList.add("toDoSection");
+        let newDiv =  this.createElement("div");
+        let newCheckBox = this.createElement("div");
+        let newToDoText = this.createElement("div");
+        let newDeleteIcon = this.createElement("span");
+
+        newDiv.classList.add("to-do-section");
         if(completed) {
             newDiv.classList.add("completed");
         }
 
         newCheckBox.classList.add("checkbox");
         newToDoText.classList.add("todo");
-        newDeleteIcon.classList.add("deleteIcon");
+        newDeleteIcon.classList.add("delete-icon");
 
-        newToDoText.innerHTML = title;
+        newToDoText.innerHTML = name;
 
         toDoListContainer.prepend(newDiv);
         newDiv.prepend(newCheckBox);
@@ -104,16 +175,16 @@ class ToDoHandler {
         newToDoText.append(newDeleteIcon);
     }
 
-    showAll(e) {
-        this.verifyActiveStatus(e.target);
+    showAllItems(e) {
+        this.checkStatus(e.target);
 
         Array.from(this.todos).forEach(todo => {
             todo.style.display = "flex";
         })
     }
 
-    verifyActiveStatus(e) {
-        Array.from(this.categories).forEach( node => {
+    checkStatus(e) {
+        this.categories.forEach(node => {
             if(node === e){
                 node.style.color = "hsl(220, 98%, 61%)";
             } else {
@@ -122,8 +193,8 @@ class ToDoHandler {
         })
     }
 
-    showTodos(e, condition) {
-        this.verifyActiveStatus(e.target);
+    showItems(e, condition) {
+        this.checkStatus(e.target);
         Array.from(this.todos).forEach(todo => {
             if(todo.classList.contains("completed") === condition) {
                 todo.style.display = "none";
@@ -133,64 +204,82 @@ class ToDoHandler {
         })
     }
 
-    deleteOneTodo (e){
+    deleteTodo (e){
         let currentTodo = e.target.parentNode.parentNode;
         let currentTodoText = e.target.parentNode.innerText;
 
         currentTodo.parentNode.removeChild(currentTodo);
         this.deleteItem(currentTodoText);
+        todo.removeTodo(currentTodoText);
     }
-    deleteItem(title) {
-        console.log(this.objectsTodosArray)
-        this.objectsTodosArray.forEach((todo, index) => {
-            if(title === todo.title){
-                this.objectsTodosArray.splice(index, 1);
+
+    deleteItem(name) {
+        todo.todoList.forEach( todoItem => {
+            if(name === todoItem.name) {
+                todo.removeTodo(todoItem);
             }
         })
+        console.log(todo.todoList);
     }
-    clearCompleted() {
-        // console.log(Array.from(this.todos))
+
+    deleteCompletedItems() {
         Array.from(this.todos).forEach(todo => {
-            console.log(todo)
             if(todo.classList.contains("completed")) {
                 todo.parentNode.removeChild(todo);
-                let title = todo.children[1].innerText;
-                console.log(title)
-                this.deleteItem(title);
+                let name = todo.children[1].innerText;
+                this.deleteItem(name);
             }
         })
+        this.checkNrOfItems(todo.todoList);
     }
 }
 
-const toDoHandler = new ToDoHandler();
+const todoUIController = new TodoUIController();
 
-const todos = document.getElementsByClassName("toDoSection");
-const deleteIcons = document.getElementsByClassName("deleteIcon");
+const todos = todoUIController.getElementsByClassName("to-do-section");
+const deleteIcons = todoUIController.getElementsByClassName("delete-icon");
+const newItemInput = todoUIController.getElementById("input");
+const showAllTriggers = todoUIController.getElementsByClassName("show-all-trigger");
+const showActiveTriggers = todoUIController.getElementsByClassName("show-active-trigger");
+const showCompletedTriggers = todoUIController.getElementsByClassName("show-completed-trigger");
+const deleteAllTrigger = todoUIController.getElementById("delete-all-trigger");
+
 
 setTimeout(() => {
     Array.from(todos).forEach( todo => {
-        todo.addEventListener('click', (e) => toDoHandler.completeHandler(e));
+        todo.addEventListener('click', (e) => todoUIController.completeHandler(e));
     })
 }, 100);
 
 setTimeout(() => {
     Array.from(deleteIcons).forEach( deleteIcon => {
-        deleteIcon.addEventListener('click', (e) => toDoHandler.deleteOneTodo(e));
+        deleteIcon.addEventListener('click', (e) => todoUIController.deleteTodo(e));
     })
 }, 100);
 
 
-toDoHandler.newTodoInput.addEventListener('keypress', function (e) {
-    toDoHandler.addNewToDo(e);
+newItemInput.addEventListener('keypress', function (e) {
+    todoUIController.addItem(e);
  });
 
-toDoHandler.showAllTrigger.addEventListener('click', (e) => toDoHandler.showAll(e));
-toDoHandler.showActiveTrigger.addEventListener('click', (e) => toDoHandler.showTodos(e, true));
-toDoHandler.showCompletedTrigger.addEventListener('click', (e) => toDoHandler.showTodos(e, false));
-toDoHandler.deleteAllTrigger.addEventListener('click', () => toDoHandler.clearCompleted());
+Array.from(showAllTriggers).forEach(showAllTrigger => {
+    showAllTrigger.addEventListener('click', (e) => todoUIController.showAllItems(e));
+})
+
+Array.from(showActiveTriggers).forEach(showActiveTrigger => {
+    showActiveTrigger.addEventListener('click', (e) => todoUIController.showItems(e, true));
+})
+
+Array.from(showCompletedTriggers).forEach(showCompletedTrigger => {
+    showCompletedTrigger.addEventListener('click', (e) => todoUIController.showItems(e, false));
+})
+
+deleteAllTrigger.addEventListener('click', () => todoUIController.deleteCompletedItems());
 
 window.onbeforeunload = () => {
-    let data = JSON.stringify(toDoHandler.objectsTodosArray);
+    let setTodos = Array.from(todo.todoList);
+    let data = JSON.stringify(setTodos);
+
     fetch('http://localhost:3000/', {
         headers:{
             'Content-Type': 'application/json',
@@ -203,14 +292,16 @@ window.onbeforeunload = () => {
 
 window.addEventListener("load", async () => {
     let data = await fetch('http://localhost:3000/');
-    let json = JSON.parse(await data.json())
-    toDoHandler.verifyItemsLeft(json);
+    let setTodos = JSON.parse(await data.json())
 
-    json.forEach( todo => {
-        toDoHandler.createNewTodo(todo.title, todo.isCompleted);
-        toDoHandler.pushTodos(todo.title, todo.isCompleted);
-    });
+    todoUIController.checkNrOfItems(setTodos);
+
+    Array.from(showAllTriggers).forEach( showAllTrigger => {
+        showAllTrigger.style.color = "hsl(220, 98%, 61%)";
+    })
+
+    setTodos.forEach( todoItem => {
+        todoUIController.createItem(todoItem.name, todoItem.isCompleted);
+        todo.addTodo(todoItem);
+    })
 })
-
-
-
